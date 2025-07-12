@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyleaMUN Kudos ShoutOuts</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Parchment texture for the overall body */
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            background-color: #f7e7c9; /* A light, warm parchment color as a fallback */
+            background-repeat: repeat;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            height: 100vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        /* Custom scrollbar for better aesthetics - adjusted colors for parchment feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e0d0b9; /* Lighter parchment tone */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a08060; /* Darker, more muted parchment tone */
+            border-radius: 10px;
+            cursor: grab;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #856a4e; /* Even darker on hover */
+        }
+
+        /* Styles for the loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            font-size: 1.5rem;
+            color: #6d28d9; /* Purple-700 */
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #a78bfa; /* Purple-400 */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Styles for custom message box (instead of alert) */
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .custom-alert-box {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 90%;
+            min-width: 280px;
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-alert-box h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #6d28d9; /* Purple-700 */
+            margin-bottom: 1rem;
+        }
+        .custom-alert-box p {
+            font-size: 1rem;
+            color: #4b5563; /* Gray-700 */
+            margin-bottom: 1.5rem;
+        }
+        .custom-alert-box button {
+            background-color: #a78bfa; /* Purple-400 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .custom-alert-box button:hover {
+            background-color: #8b5cf6; /* Purple-500 */
+        }
+
+        /* App container styling (the form) - Peach Lemon background */
+        .app-container {
+            margin: 20px auto; /* Add vertical margin and center horizontally */
+            border: 1px solid #d4c2a7;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
+            background-color: #ffeebc; /* Peach-lemon background for the form */
+            background-image: none; /* Remove any default white background */
+        }
+
+        /* Themed text colors for the app-container */
+        .app-container h1 {
+            color: #5a2d0b; /* Rich brown color for the main title */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .app-container p.text-center.text-gray-600 { /* For the descriptive paragraph */
+            color: #6e5e4d; /* Muted brown-grey */
+        }
+        .app-container label { /* For form labels */
+            color: #b8860b; /* Gold color for labels */
+        }
+        .app-container .text-xs.text-gray-500 { /* For character counter */
+            color: #6e5e4d; /* Muted brown-grey */
+        }
+
+        /* Input fields styling */
+        input[type="text"], textarea {
+            background-color: #fcfcf0; /* Very light creamy background for inputs */
+            border-color: #d4c2a7; /* Match border to parchment theme */
+            color: #5a2d0b; /* Brown text for input */
+        }
+        input[type="text"]::placeholder, textarea::placeholder {
+            color: #a08060; /* Muted placeholder text */
+        }
+
+        /* Submit Button styling */
+        #send-kudos-button {
+            background-color: #a08060; /* Darker parchment/gold color for button */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        #send-kudos-button:hover {
+            background-color: #856a4e; /* Even darker on hover */
+        }
+
+        /* Message box styling */
+        #message-box {
+            background-color: #fcfcf0; /* Light creamy background for message box */
+            color: #5a2d0b; /* Brown text for messages */
+            border: 1px solid #d4c2a7;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            opacity: 0; /* Initial state for animation */
+            transform: translateY(10px); /* Initial state for animation */
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        #message-box.bg-green-50 { /* For success messages */
+            background-color: #e6ffe6; /* Light green */
+            color: #228B22; /* Forest green */
+        }
+
+        /* Link to Kudos Board */
+        .kudos-board-link {
+            display: block; /* Make it a block element */
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #b8860b; /* Gold color for link */
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s ease-in-out;
+        }
+        .kudos-board-link:hover {
+            color: #856a4e; /* Darker gold on hover */
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 640px) { /* Tailwind's sm breakpoint */
+            .app-container {
+                padding: 1rem; /* Smaller padding on very small screens */
+            }
+            .app-container h1 {
+                font-size: 2rem; /* Smaller title on small screens */
+            }
+        }
+    </style>
+</head>
+<body class="selection:bg-purple-200 selection:text-purple-800">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <!-- Custom Alert/Message Box HTML -->
+    <div id="custom-alert-overlay" class="custom-alert-overlay hidden">
+        <div class="custom-alert-box">
+            <h3 id="custom-alert-title"></h3>
+            <p id="custom-alert-message"></p>
+            <button id="custom-alert-ok-button">OK</button>
+        </div>
+    </div>
+
+    <div class="app-container p-4 sm:p-8 rounded-3xl shadow-2xl w-full max-w-xs sm:max-w-md lg:max-w-lg">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-center mb-6 drop-shadow-md">Give a Shout-Out!</h1>
+        <p class="text-center text-gray-600 mb-8 text-sm">
+            Share a positive moment or compliment a fellow delegate! <br>
+            E.g., "Great speech by the delegate of France!", "Thank you to the chair for their guidance."
+        </p>
+
+        <form id="kudos-form" class="space-y-4">
+            <div>
+                <label for="kudos-message" class="block text-sm font-bold mb-2">Your Compliment:</label>
+                <textarea id="kudos-message" name="kudos-message" rows="4" required maxlength="200"
+                          placeholder="E.g., 'The delegate of [Country] made an excellent point on [topic]!'"
+                          class="shadow appearance-none border rounded-xl w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline focus:border-purple-500 transition duration-200"></textarea>
+                <p class="text-xs text-right"><span id="message-char-count">0</span>/200 characters</p>
+            </div>
+            <div>
+                <label for="kudos-to" class="block text-sm font-bold mb-2">To (Country/Delegate Name - optional):</label>
+                <input type="text" id="kudos-to" name="kudos-to" maxlength="100"
+                       placeholder="E.g., 'Delegate of France', 'John from Committee A'"
+                       class="shadow appearance-none border rounded-xl w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline focus:border-purple-500 transition duration-200">
+            </div>
+            <div>
+                <label for="kudos-from" class="block text-sm font-bold mb-2">From (Your Name/Country - optional):</label>
+                <input type="text" id="kudos-from" name="kudos-from" maxlength="100"
+                       placeholder="E.g., 'Anonymous Delegate', 'Delegate of Greece', 'Maria'"
+                       class="shadow appearance-none border rounded-xl w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline focus:border-purple-500 transition duration-200">
+            </div>
+            <div class="flex justify-center mt-6">
+                <button type="submit" id="send-kudos-button"
+                                class="font-bold py-2 px-6 rounded-full shadow-lg transition-all duration-200 transform hover:-translate-y-1 active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-75">
+                    Send Kudos!
+                </button>
+            </div>
+        </form>
+
+        <!-- Message box for feedback -->
+        <div id="message-box" class="p-3 sm:p-4 rounded-xl text-center text-xs sm:text-sm font-medium shadow-inner hidden">
+            <!-- Messages will appear here -->
+        </div>
+
+        <!-- Link to Kudos Board -->
+        <a href="kudos-board.html" class="kudos-board-link">
+            View the Kudos Board &nbsp; &rarr;
+        </a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration (from your working project)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDc7w_a0mmNKvpN5nXl0YGzNXlJhbu3T6Y",
+            authDomain: "pyleamun-kudos-app.firebaseapp.com",
+            projectId: "pyleamun-kudos-app",
+            storageBucket: "pyleamun-kudos-app.firebasestorage.app",
+            messagingSenderId: "99814376145",
+            appId: "1:99814376145:web:9d2c25156d0d8ffce57bf0"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUserId = null; // Stores the anonymous user's UID
+
+        // --- UI Utility Functions ---
+        function showLoading(message = "Processing...") {
+            document.getElementById('loading-overlay').querySelector('p').textContent = message;
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+        }
+
+        function showAlert(title, message) {
+            document.getElementById('custom-alert-title').textContent = title;
+            document.getElementById('custom-alert-message').textContent = message;
+            document.getElementById('custom-alert-overlay').classList.remove('hidden');
+        }
+
+        document.getElementById('custom-alert-ok-button').addEventListener('click', () => {
+            document.getElementById('custom-alert-overlay').classList.add('hidden');
+        });
+
+        function showMessage(message, type = 'info') {
+            const messageBox = document.getElementById('message-box');
+            messageBox.textContent = message;
+            messageBox.classList.remove('hidden', 'bg-purple-50', 'text-purple-700', 'bg-green-50', 'text-green-700');
+            if (type === 'success') {
+                messageBox.classList.add('bg-green-50', 'text-green-700');
+            } else {
+                messageBox.classList.add('bg-purple-50', 'text-purple-700');
+            }
+            messageBox.style.opacity = '0';
+            messageBox.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                messageBox.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                messageBox.style.opacity = '1';
+                messageBox.style.transform = 'translateY(0)';
+            }, 10);
+
+            setTimeout(() => {
+                messageBox.style.opacity = '0';
+                messageBox.style.transform = 'translateY(10px)';
+                setTimeout(() => {
+                    messageBox.classList.add('hidden');
+                }, 500);
+            }, 3000);
+        }
+
+        // --- Firebase Authentication ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUserId = user.uid;
+                console.log("User signed in:", currentUserId);
+            } else {
+                console.log("No user signed in. Signing in anonymously...");
+                signInAnonymously(auth)
+                    .then(() => {
+                        console.log("Anonymous sign-in successful.");
+                    })
+                    .catch((error) => {
+                        console.error("Anonymous sign-in failed:", error);
+                        showAlert("Authentication Error", "Could not sign you in. Please ensure Anonymous Authentication is enabled in your Firebase project settings (Authentication -> Sign-in method) for project: pyleamun-kudos-app.");
+                    });
+            }
+        });
+
+        // --- Form Elements and Logic ---
+        const kudosForm = document.getElementById('kudos-form');
+        const kudosMessageInput = document.getElementById('kudos-message');
+        const kudosToInput = document.getElementById('kudos-to');
+        const kudosFromInput = document.getElementById('kudos-from');
+        const messageCharCount = document.getElementById('message-char-count');
+
+        // Character counter for the main message
+        kudosMessageInput.addEventListener('input', () => {
+            messageCharCount.textContent = kudosMessageInput.value.length;
+        });
+
+        // Handle form submission
+        kudosForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            if (!currentUserId) {
+                showAlert("Error", "Authentication not ready. Please wait a moment and try again.");
+                return;
+            }
+
+            const message = kudosMessageInput.value.trim();
+            const to = kudosToInput.value.trim();
+            let from = kudosFromInput.value.trim();
+
+            if (!message) {
+                showAlert("Validation Error", "Please enter your compliment message.");
+                return;
+            }
+
+            // Default 'From' to "Anonymous" if left blank
+            if (from === "") {
+                from = "Anonymous";
+            }
+
+            showLoading("Sending your kudos...");
+            try {
+                // Use the project ID of your working Firebase project
+                const appId = "pyleamun-kudos-app"; 
+                const kudosCollectionRef = collection(db, `artifacts/${appId}/public/data/kudos`);
+
+                await addDoc(kudosCollectionRef, {
+                    message: message,
+                    to: to,
+                    from: from,
+                    timestamp: new Date(), // Firestore Timestamp
+                    likes: 0, // Initialize likes to 0
+                    likers: [], // Initialize empty array to store UIDs of users who liked this post
+                    submitterId: currentUserId // Store the UID of the submitter
+                });
+
+                hideLoading();
+                showMessage("Your shout-out has been posted! Check the Kudos Board.", 'success');
+                kudosForm.reset(); // Clear the form
+                messageCharCount.textContent = '0'; // Reset character count
+            } catch (error) {
+                console.error("Error submitting kudos:", error);
+                showAlert("Submission Failed", "There was an error posting your shout-out. Please try again.");
+                hideLoading();
+            }
+        });
+    </script>
+</body>
+</html>
