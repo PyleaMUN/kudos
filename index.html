@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PyleaMUN Kudos ShoutOuts</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -211,13 +210,11 @@
     </style>
 </head>
 <body class="selection:bg-purple-200 selection:text-purple-800">
-    <!-- Loading Overlay -->
     <div id="loading-overlay" class="loading-overlay hidden">
         <div class="loading-spinner"></div>
         <p>Processing...</p>
     </div>
 
-    <!-- Custom Alert/Message Box HTML -->
     <div id="custom-alert-overlay" class="custom-alert-overlay hidden">
         <div class="custom-alert-box">
             <h3 id="custom-alert-title"></h3>
@@ -228,10 +225,14 @@
 
     <div class="app-container p-4 sm:p-8 rounded-3xl shadow-2xl w-full max-w-xs sm:max-w-md lg:max-w-lg">
         <h1 class="text-3xl sm:text-4xl font-extrabold text-center mb-6 drop-shadow-md">Give a Kudos Shout-Out!</h1>
-        <p class="text-center text-gray-600 mb-8 text-sm">
+        <p class="text-center text-gray-600 mb-4 text-sm">
             Share a positive moment or compliment a fellow delegate! <br>
             E.g., "Great speech by the delegate of France!", "Thank you to the chair for their guidance."
         </p>
+
+        <div class="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-lg text-sm mb-6 shadow-md text-center">
+            <strong>Important:</strong> Please remember to keep your messages constructive and respectful. All shout-outs are moderated by the PyleaMUN Organising Committee.
+        </div>
 
         <form id="kudos-form" class="space-y-4">
             <div>
@@ -255,18 +256,15 @@
             </div>
             <div class="flex justify-center mt-6">
                 <button type="submit" id="send-kudos-button"
-                                class="font-bold py-2 px-6 rounded-full shadow-lg transition-all duration-200 transform hover:-translate-y-1 active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-75">
+                                 class="font-bold py-2 px-6 rounded-full shadow-lg transition-all duration-200 transform hover:-translate-y-1 active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-75">
                     Send Kudos!
                 </button>
             </div>
         </form>
 
-        <!-- Message box for feedback -->
         <div id="message-box" class="p-3 sm:p-4 rounded-xl text-center text-xs sm:text-sm font-medium shadow-inner hidden">
-            <!-- Messages will appear here -->
-        </div>
+            </div>
 
-        <!-- Link to Kudos Board -->
         <a href="/kudos-board/" class="kudos-board-link">
             View the Kudos Board &nbsp; &rarr;
         </a>
@@ -396,7 +394,7 @@
             showLoading("Sending your kudos...");
             try {
                 // Use the project ID of your working Firebase project
-                const appId = "pyleamun-kudos-app"; 
+                const appId = "pyleamun-kudos-app";
                 const kudosCollectionRef = collection(db, `artifacts/${appId}/public/data/kudos`);
 
                 await addDoc(kudosCollectionRef, {
